@@ -33,6 +33,7 @@ export class TabsContainerComponent implements AfterContentInit {
       tab.active = false;
     });
     tab.active = true;
+    // removes the # from url
     return false;
   }
 }
