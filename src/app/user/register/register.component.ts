@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import IUser from '../../models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +17,7 @@ export class RegisterComponent implements OnInit {
     Validators.required,
     Validators.email,
   ]);
-  age: FormControl = new FormControl('', [
+  age: FormControl<number | null> = new FormControl(null, [
     Validators.required,
     Validators.min(18),
     Validators.max(120),
@@ -41,17 +43,31 @@ export class RegisterComponent implements OnInit {
   });
 
   alertMessage: string = 'Please wait!';
-  showAlert: boolean = false;
   alertColor: string = 'blue';
+  showAlert: boolean = false;
+  inSubmission: boolean = false;
 
-  constructor() {}
+  constructor(private auth: AuthService) {}
 
   ngOnInit(): void {}
 
-  register(): void {
+  async register() {
     this.showAlert = true;
+    this.inSubmission = true;
     this.alertMessage = 'Please wait!';
     this.alertColor = 'blue';
-    console.log('Form Submitted!');
+
+    try {
+      await this.auth.createUser(this.registerForm.value as IUser);
+    } catch (error) {
+      console.error(error);
+      this.alertMessage = 'An unexpected error occured!';
+      this.alertColor = 'red';
+      this.inSubmission = false;
+      return;
+    }
+
+    this.alertMessage = 'Success! Your account has been created!';
+    this.alertColor = 'green';
   }
 }
